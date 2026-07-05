@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Привет, Настя!</title>
+
+    <link rel="icon" type="image/png" href="gljancevoe-serdechko.png">
+    <link rel="stylesheet" href="index2.css">
+</head>
+<body>
+
+    <!-- Верхнее меню -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">🌟 Настя</div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="showCompliment()">Комплимент</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="showRandomImage()">Картинка</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="showWishInput()">Пожелание</a>
+                </li>
+            </ul>
+            <div class="hamburger" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Главный экран -->
+    <section id="mainScreen" class="main-screen">
+        <div class="main-content">
+            <h1 class="main-title">Привет, Настя!</h1>
+            <button class="main-button" onclick="openImageModal()">Нажми на меня</button>
+        </div>
+    </section>
+
+    <!-- Модальное окно с картинкой -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-image-container" onclick="closeImageModal()">
+                <img id="modalImage" src="" alt="Картинка" class="modal-image">
+                <p id="modalText" class="modal-text">Текст под картинкой</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для комплиментов -->
+    <div id="complimentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-compliment">
+                <button class="modal-close" onclick="closeComplimentModal()">×</button>
+                <div class="compliment-box">
+                    <p id="complimentText" class="compliment-text">Твой комплимент</p>
+                    <span class="compliment-emoji">✨</span>
+                </div>
+                <button class="compliment-button" onclick="showCompliment()">Ещё комплимент</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для пожеланий -->
+    <div id="wishModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-wish">
+                <button class="modal-close" onclick="closeWishModal()">×</button>
+                <h2 class="wish-title">💝 Оставь пожелание</h2>
+                <textarea id="wishInput" class="wish-input" placeholder="Напиши своё пожелание..."></textarea>
+                <button class="wish-button" onclick="saveWish()">Отправить пожелание</button>
+                <div id="wishesContainer" class="wishes-container">
+                    <!-- Здесь будут появляться сохранённые пожелания -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="index2.js"></script>
+</body>
+</html>
