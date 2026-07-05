@@ -51,20 +51,53 @@ const images = [
    
 ];
 
-// Массив для хранения пожеланий
-let wishes = [];
+// ========================================
+// РАБОТА С ПОЖЕЛАНИЯМИ (СОХРАНЕНИЕ)
+// ========================================
 
-// Загружаем сохранённые пожелания из localStorage
-function loadWishes() {
-    const saved = localStorage.getItem('wishes');
-    if (saved) {
-        wishes = JSON.parse(saved);
+// Ключ для localStorage
+const STORAGE_KEY = 'nastya_wishes';
+
+// Получить все пожелания
+function getWishes() {
+    try {
+        const data = localStorage.getItem(STORAGE_KEY);
+        return data ? JSON.parse(data) : [];
+    } catch (error) {
+        console.error('Ошибка загрузки пожеланий:', error);
+        return [];
     }
 }
 
-// Сохраняем пожелания в localStorage
-function saveWishesToStorage() {
-    localStorage.setItem('wishes', JSON.stringify(wishes));
+// Сохранить пожелания
+function saveWishes(wishes) {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(wishes));
+    } catch (error) {
+        console.error('Ошибка сохранения пожеланий:', error);
+    }
+}
+
+// Добавить пожелание
+function addWish(text) {
+    const wishes = getWishes();
+    const wish = {
+        id: Date.now(),
+        text: text.trim(),
+        date: new Date().toLocaleString('ru-RU'),
+        timestamp: Date.now()
+    };
+    wishes.unshift(wish);
+    saveWishes(wishes);
+    return wishes;
+}
+
+// Удалить пожелание
+function deleteWish(id) {
+    let wishes = getWishes();
+    wishes = wishes.filter(wish => wish.id !== id);
+    saveWishes(wishes);
+    return wishes;
 }
 
 // ========================================
@@ -155,18 +188,12 @@ function saveWish() {
     const text = input.value.trim();
     
     if (text === '') {
-        alert('Пожалуйста, напиши пожелание!');
+        alert('💝 Пожалуйста, напишите пожелание!');
         return;
     }
     
     // Добавляем пожелание
-    const wish = {
-        text: text,
-        date: new Date().toLocaleString('ru-RU')
-    };
-    
-    wishes.unshift(wish); // Добавляем в начало массива
-    saveWishesToStorage();
+    addWish(text);
     
     // Очищаем поле ввода
     input.value = '';
@@ -175,14 +202,29 @@ function saveWish() {
     renderWishes();
     
     // Показываем уведомление
-    alert('💝 Спасибо, я все почитаю');
+    showNotification('💝 Спасибо за пожелание! Оно сохранено.');
+}
+
+function deleteWishHandler(id) {
+    if (confirm('Удалить это пожелание?')) {
+        deleteWish(id);
+        renderWishes();
+        showNotification('🗑️ Пожелание удалено');
+    }
 }
 
 function renderWishes() {
     const container = document.getElementById('wishesContainer');
+    const wishes = getWishes();
     
     if (wishes.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">Пока нет пожеланий. Будь первой! 💫</p>';
+        container.innerHTML = `
+            <div style="text-align: center; color: #999; padding: 30px;">
+                <p style="font-size: 48px; margin-bottom: 10px;">💫</p>
+                <p>Пока нет пожеланий. Будь первой!</p>
+                <p style="font-size: 14px; margin-top: 10px;">Напиши что-нибудь тёплое для Насти</p>
+            </div>
+        `;
         return;
     }
     
@@ -192,6 +234,7 @@ function renderWishes() {
             <div class="wish-item">
                 <p class="wish-item-text">${escapeHtml(wish.text)}</p>
                 <span class="wish-item-date">📅 ${wish.date}</span>
+                <button class="wish-item-delete" onclick="deleteWishHandler(${wish.id})">×</button>
             </div>
         `;
     });
@@ -204,6 +247,45 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// ========================================
+// УВЕДОМЛЕНИЯ
+// ========================================
+
+function showNotification(message) {
+    // Создаём уведомление
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 15px 30px;
+        border-radius: 15px;
+        font-size: 18px;
+        font-weight: 600;
+        z-index: 9999;
+        animation: fadeInUp 0.5s ease;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        max-width: 90%;
+        text-align: center;
+    `;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // Удаляем через 3 секунды
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transition = 'opacity 0.5s ease';
+        setTimeout(() => {
+            notification.remove();
+        }, 500);
+    }, 3000);
 }
 
 // ========================================
@@ -234,13 +316,16 @@ document.querySelectorAll('.modal').forEach(modal => {
 // ИНИЦИАЛИЗАЦИЯ
 // ========================================
 
-// Загружаем пожелания
-loadWishes();
-
 // Выводим приветствие в консоль
 console.log('🌟 Привет, Настя! Добро пожаловать на сайт!');
+console.log('💝 Все пожелания сохраняются в localStorage');
 
-// Показываем приветственное сообщение через 1 секунду
+// Показываем приветственное уведомление
 setTimeout(() => {
-    console.log('💫 Наслаждайся сайтом!');
+    const wishes = getWishes();
+    if (wishes.length > 0) {
+        showNotification(`💝 Уже ${wishes.length} пожеланий для Насти!`);
+    } else {
+        showNotification('💫 Привет, Настя! Оставь своё пожелание!');
+    }
 }, 1000);
